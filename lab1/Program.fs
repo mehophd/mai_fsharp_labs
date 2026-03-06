@@ -50,7 +50,7 @@ let func2 x =
 let func3 x =
     (1.0 - x**2.0 / 2.0)*(cos x) - (x / 2.0) * sin x
 
-let bisectionmethod (starta: float) (startb:float) f =
+let bisectionmethod (starta: float) (startb: float) f =
     let mutable a = starta
     let mutable b = startb
     let mutable mid = 0.0
@@ -73,9 +73,19 @@ let bisectionmethod (starta: float) (startb:float) f =
             else
                 a <- mid
 
-            printf "%f\n" mid
-        
+        printf "%f\n" mid
         mid
+
+let rec iterationmethod (x0: float) f =
+    let mutable xnext = f x0
+    while Double.IsInfinity(xnext) || Double.IsNaN(xnext) do
+        xnext <- f (x0 + eps)
+    if abs (xnext - x0) < eps then 
+        printfn "%f" xnext
+        xnext
+    else 
+        iterationmethod xnext f
+
 
 let task1 =
     printfn "| %8s | %12s | %12s | %8s | %12s | %8s |" "x" "Builtin" "Smart Taylor" "# terms" "Dumb Taylor" "# terms"
@@ -93,14 +103,19 @@ let task1 =
 
 [<EntryPoint>]
 let main argv =
-    //task1
-
     printf "\n\n"
     bisectionmethod 1.0 4.0 func1
     printf "\n\n"
     bisectionmethod -1.0 15.0 func2
     printf "\n\n"
-    bisectionmethod 0.0 0.1 func3
+    bisectionmethod 0.0 1.0 func3
+    
+    printf "\n\n"
+    iterationmethod 3.0 func1
+    printf "\n\n"
+    iterationmethod 3.0 func2
+    printf "\n\n"
+    iterationmethod 0.56323 func3 // не будет работать, расходится функция
+    
+    
     0
-
-    // написать цикл, где мы начинаем с малого интервала от 0 до eps и начинаем его двигать (?)
