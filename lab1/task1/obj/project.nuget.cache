@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "mYcFPjxAnuy903g/+gWTTrkxHWMlpXZlGYG0+O2kbYX3NT5Qg7DhMUx5FujZ2MTLhkaQDU1f15Fm00sMqNVPKg==",
+  "success": true,
+  "projectFilePath": "/home/mehophd/Code/MAI/fsharp/lab1/task1/lab1.fsproj",
+  "expectedPackageFiles": [
+    "/home/mehophd/.nuget/packages/fsharp.core/8.0.102/fsharp.core.8.0.102.nupkg.sha512"
+  ],
+  "logs": []
+}
