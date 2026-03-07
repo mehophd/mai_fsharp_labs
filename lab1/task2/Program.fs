@@ -32,8 +32,7 @@ let bisectionmethod (starta: float) (startb: float) f =
     let mutable flag = false
 
     if (f a) * (f b) > 0.0 then
-        printfn "Метод дихотомии не подходит для начальных a и b"
-        nan
+        (nan, -1)
     else
         while not flag && abs(a - b) > eps do
             while Double.IsInfinity(f a) || Double.IsNaN(f a) do
@@ -49,8 +48,7 @@ let bisectionmethod (starta: float) (startb: float) f =
             else
                 a <- mid
 
-        printfn "Метод дихотомии: корень = %f" mid
-        mid
+        (mid, -1)
 
 let iterationmethod (x0: float) f g =
     let mutable x = x0
@@ -69,12 +67,10 @@ let iterationmethod (x0: float) f g =
             corr <- corr + 1
 
         if corr >= maxcorrections then
-            printfn "Слишком много попыток уйти от разрыва"
             result <- nan
             converged <- true
         else
-            if abs (xnext - x) < eps && abs (f xnext) < eps then
-                printfn "Метод итераций: корень = %f итераций: %d" xnext i
+            if abs(xnext - x) < eps && abs(f xnext) < eps then
                 result <- xnext
                 converged <- true
             else
@@ -82,10 +78,9 @@ let iterationmethod (x0: float) f g =
                 i <- i + 1
 
     if not converged then
-        printfn "Метод итераций не сошелся за %d итераций" maxiter
-        nan
+        (nan, i)
     else
-        result
+        (result, i)
 
 let newtonmethod (x0: float) f f' =
     let mutable x = x0
@@ -95,7 +90,6 @@ let newtonmethod (x0: float) f f' =
 
     while not converged && i < maxiter do
         if Double.IsInfinity(x) || Double.IsNaN(x) then
-            printfn "На итерации %d получено некорректное значение x" i
             result <- nan
             converged <- true
         else
@@ -103,19 +97,16 @@ let newtonmethod (x0: float) f f' =
             let fpx = f' x
 
             if Double.IsInfinity(fpx) || Double.IsNaN(fpx) || abs fpx < 1e-15 then
-                printfn "Производная близка к нулю или некорректна в точке x=%f" x
                 result <- nan
                 converged <- true
             else
                 let xnext = x - fx / fpx
 
                 if Double.IsInfinity(xnext) || Double.IsNaN(xnext) then
-                    printfn "На итерации %d получено некорректное следующее приближение" i
                     result <- nan
                     converged <- true
                 else
                     if abs (xnext - x) < eps && abs (f xnext) < eps then
-                        printfn "Метод Ньютона: корень = %f итераций: %d" xnext i
                         result <- xnext
                         converged <- true
                     else
@@ -123,38 +114,31 @@ let newtonmethod (x0: float) f f' =
                         i <- i + 1
 
     if not converged then
-        printfn "Метод Ньютона не сошелся за %d итераций" maxiter
-        nan
+        (nan, i)
     else
-        result
+        (result, i)
 
 [<EntryPoint>]
 let main argv =
-    printfn "\nМетод дихотомии для func1 с начальным промежутком a = 1.0 b = 4.0:"
-    bisectionmethod 1.0 4.0 func1 
+    let results = [
+        ("Дихотомия", "func1", "[1.0, 4.0]", bisectionmethod 1.0 4.0 func1)
+        ("Дихотомия", "func2", "[-1.0, 15.0]", bisectionmethod -1.0 15.0 func2)
+        ("Дихотомия", "func3", "[-1.0, 0.0]", bisectionmethod -1.0 0.0 func3)
+        ("Итераций", "func1", "x0=1.5", iterationmethod 1.5 func1 g1)
+        ("Итераций", "func2", "x0=3.0", iterationmethod 3.0 func2 g2)
+        ("Итераций", "func3", "x0=0.1", iterationmethod 0.1 func3 g3)
+        ("Ньютона", "func1", "x0=1.5", newtonmethod 1.5 func1 deriv1)
+        ("Ньютона", "func2", "x0=3.0", newtonmethod 3.0 func2 deriv2)
+        ("Ньютона", "func3", "x0=0.5", newtonmethod 0.5 func3 deriv3)
+    ]
 
-    printfn "\nМетод дихотомии для func2 с начальным промежутком a = -1.0 b = 15.0:"
-    bisectionmethod -1.0 15.0 func2 
+    printfn "| %10s | %8s | %15s | %20s | %8s |" "Метод" "Функция" "Параметры" "Корень" "Итерации"
 
-    printfn "\nМетод дихотомии для func3 с начальным промежутком a = -1.0 b = 0.0:"
-    bisectionmethod -1.0 0.0 func3 
+    printfn "|%s|%s|%s|%s|%s|" (String.replicate 12 "-") (String.replicate 10 "-") (String.replicate 17 "-") (String.replicate 22 "-") (String.replicate 10 "-")
 
-    printfn "\nМетод итераций для func1 (g1) с начальным приближением 1.5:"
-    iterationmethod 1.5 func1 g1 
-
-    printfn "\nМетод итераций для func2 (g2) с начальным приближением 3.0:"
-    iterationmethod 3.0 func2 g2
-
-    printfn "\nМетод итераций для func3 (g3) с начальным приближением 0.1:"
-    iterationmethod 0.1 func3 g3 
-
-    printfn "\nМетод Ньютона для func1 с начальным приближением 1.5:"
-    newtonmethod 1.5 func1 deriv1 
-
-    printfn "\nМетод Ньютона для func2 с начальным приближением 3.0:"
-    newtonmethod 3.0 func2 deriv2 
-
-    printfn "\nМетод Ньютона для func3 с начальным приближением 0.1:"
-    newtonmethod 0.5 func3 deriv3 
+    for (methodName, funcName, paramsStr, (root, iter)) in results do
+        let rootStr = if Double.IsNaN(root) then "не найден" else sprintf "%.10f" root
+        let iterStr = if iter = -1 then "---" else sprintf "%d" iter
+        printfn "| %10s | %8s | %15s | %20s | %8s |" methodName funcName paramsStr rootStr iterStr
 
     0
